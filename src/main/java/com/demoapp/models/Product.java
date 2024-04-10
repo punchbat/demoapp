@@ -1,13 +1,6 @@
 package com.demoapp.models;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-@Entity
-@Table(schema = "products")
 public class Product {
-    @Id
     private int id;
     private String name;
     private float price;
