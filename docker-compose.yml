@@ -1,33 +1,33 @@
 version: '3.8'
 
 services:
-  central-system:
-    container_name: central-system
-    build: target
+  demoapp:
+    container_name: demoapp
+    build: .
     ports:
-      - 8887:8887
+      - 8080:8080
     restart: on-failure
     depends_on:
-      - postgres-db
+      - demoapp-postgres-db
     networks:
-      - central-system-network
+      - demoapp-network
 
-  postgres-db:
+  demoapp-postgres-db:
     image: postgres:latest
-    container_name: postgres-db
+    container_name: demoapp-postgres-db
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=ezs
+      - POSTGRES_DB=demoapp
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - central-system-network
+      - demoapp-network
 
 networks:
-  central-system-network:
+  demoapp-network:
     driver: bridge
 
 volumes:
