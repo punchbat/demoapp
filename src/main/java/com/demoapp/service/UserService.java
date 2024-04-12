@@ -1,7 +1,6 @@
 package com.demoapp.service;
 
 import com.demoapp.middleware.LoggingFilter;
-import com.demoapp.util.HibernateUtil;
 import com.demoapp.dao.UserRoleDAO;
 import com.demoapp.dto.request.SignInRequestDTO;
 import com.demoapp.dto.request.SignUpRequestDTO;
@@ -28,9 +27,8 @@ public class UserService {
     private UserRoleDAO userRoleDAO;
 
     public UserService() {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        this.userDAO = new UserDAO(session);
-        this.userRoleDAO = new UserRoleDAO(session);
+        this.userDAO = new UserDAO();
+        this.userRoleDAO = new UserRoleDAO();
     }
 
     public UserAndTokenResponseDTO signUp(SignUpRequestDTO signUpRequestDTO) {
@@ -76,7 +74,7 @@ public class UserService {
 
     public UserAndTokenResponseDTO signIn(SignInRequestDTO signInRequestDTO) {
         logger.info(UserService.class.getName() + ":" + new Throwable().getStackTrace()[0].getMethodName() + ":start");
-        UserEntity user = userDAO.findByEmail(signInRequestDTO.getEmail());
+        UserEntity user = userDAO.findOne(UserEntity.builder().email(signInRequestDTO.getEmail()).build());
 
         if (user == null) {
             Error err = new Error("User not found with email: " + signInRequestDTO.getEmail());

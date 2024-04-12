@@ -6,12 +6,16 @@
     <session-factory>
         <!-- docker-compose.yml -->
         <property name="connection.driver_class">org.postgresql.Driver</property>
-        <property name="connection.url">jdbc:postgresql://localhost:5432/demoapp-db</property>
+        <property name="connection.url">jdbc:postgresql://demoapp-postgres-db:5432/demoapp-db</property>
         <property name="connection.username">user</property>
         <property name="connection.password">password</property>
 
         <!-- JDBC connection pool settings ... using built-in test pool -->
-        <property name="connection.pool_size">1</property>
+        <property name="hibernate.c3p0.min_size">5</property>
+        <property name="hibernate.c3p0.max_size">20</property>
+        <property name="hibernate.c3p0.timeout">300</property>
+        <property name="hibernate.c3p0.max_statements">50</property>
+        <property name="hibernate.c3p0.idle_test_period">3000</property>
 
         <!-- SQL dialect -->
         <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>

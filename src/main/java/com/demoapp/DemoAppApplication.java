@@ -4,6 +4,7 @@ import com.demoapp.exception.mapper.ClientExceptionMapper;
 import com.demoapp.exception.mapper.SystemException;
 import com.demoapp.exception.mapper.SystemExceptionMapper;
 import com.demoapp.exception.mapper.ValidationExceptionMapper;
+import com.demoapp.middleware.CorsFilter;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
@@ -18,6 +19,7 @@ public class DemoAppApplication extends Application {
         classes.add(ClientExceptionMapper.class);
         classes.add(SystemExceptionMapper.class);
         classes.add(ValidationExceptionMapper.class);
+        classes.add(CorsFilter.class);
         return classes;
     }
 }

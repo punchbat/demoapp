@@ -71,10 +71,10 @@ public class ProductControllers {
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Response updateProduct(@Context SecurityContext securityContext, @Valid UpdateProductRequestDTO updateProductRequestDTO) {
         if (securityContext.isUserInRole("ADMIN")) {
-            ProductResponseDTO productDTO = productServices.updateProduct(updateProductRequestDTO);
+            productServices.updateProduct(updateProductRequestDTO);
             return Response
                     .status(Response.Status.CREATED)
-                    .entity(ApiResponseDTO.success("Updated product", productDTO))
+                    .entity(ApiResponseDTO.success("Updated product", updateProductRequestDTO))
                     .build();
         }
         return Response

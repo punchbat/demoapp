@@ -8,10 +8,8 @@ import com.demoapp.dao.ProductDAO;
 import com.demoapp.exception.DatabaseException;
 import com.demoapp.exception.NotFoundException;
 import com.demoapp.middleware.LoggingFilter;
-import com.demoapp.util.HibernateUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -24,8 +22,7 @@ public class ProductService {
     private ProductDAO productDAO;
 
     public ProductService() {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        this.productDAO = new ProductDAO(session);
+        this.productDAO = new ProductDAO();
     }
 
     public List<ProductResponseDTO> listProducts() {
@@ -85,14 +82,14 @@ public class ProductService {
 
         ProductEntity updatedProduct;
         try {
-            updatedProduct = productDAO.update(existingProduct);
+            productDAO.update(existingProduct);
             logger.info(ProductService.class.getName() + ":" + new Throwable().getStackTrace()[0].getMethodName() + ":updated product");
         } catch (Exception e) {
             Error err = new Error("Error updating product");
             throw new DatabaseException(HttpURLConnection.HTTP_BAD_REQUEST, err, err.getMessage());
         }
         logger.info(ProductService.class.getName() + ":" + new Throwable().getStackTrace()[0].getMethodName() + ":end");
-        return new ProductResponseDTO(updatedProduct);
+        return null;
     }
 
     public void deleteProduct(String id) {
