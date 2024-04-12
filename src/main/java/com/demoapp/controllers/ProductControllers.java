@@ -1,20 +1,29 @@
 package com.demoapp.controllers;
 
-import com.demoapp.dto.ApiDTO;
-import com.demoapp.dto.ProductDTO;
-import com.demoapp.models.Product;
-import com.demoapp.services.ProductServices;
+import com.demoapp.dto.request.AddProductRequestDTO;
+import com.demoapp.dto.request.UpdateProductRequestDTO;
+import com.demoapp.dto.response.ApiResponseDTO;
+import com.demoapp.dto.response.ProductResponseDTO;
+import com.demoapp.entity.ProductEntity;
+import com.demoapp.middleware.LoggingFilter;
+import com.demoapp.service.ProductService;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Path("/products")
 public class ProductControllers {
+    private ProductService productServices;
 
-    private ProductServices productServices = new ProductServices();
+    public ProductControllers() {
+        this.productServices = new ProductService();
+    }
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -22,7 +31,7 @@ public class ProductControllers {
     public Response listProducts() {
         return Response
                 .status(Response.Status.OK)
-                .entity(ApiDTO.success("All products", productServices.listProducts()))
+                .entity(ApiResponseDTO.success("All products", productServices.listProducts()))
                 .build();
     }
 
@@ -30,45 +39,29 @@ public class ProductControllers {
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response getProduct(@PathParam("id") int id) {
-        ProductDTO productDTO = productServices.getProduct(id);
-
-        if (productDTO != null) {
-            return Response
-                    .status(Response.Status.OK)
-                    .entity(ApiDTO.success("Get product", productDTO))
-                    .build();
-        }
-
+    public Response getProduct(@PathParam("id") String id) {
+        ProductResponseDTO productDTO = productServices.getProduct(id);
         return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity(ApiDTO.failure("Product not found"))
+                .status(Response.Status.OK)
+                .entity(ApiResponseDTO.success("Get product", productDTO))
                 .build();
     }
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response addProduct(@Context SecurityContext securityContext, Product product) {
+    public Response addProduct(@Context SecurityContext securityContext, @Valid AddProductRequestDTO addProductRequestDTO) {
         if (securityContext.isUserInRole("ADMIN")) {
-            ProductDTO productDTO = productServices.addProduct(product);
-
-            if (productDTO != null) {
-                return Response
-                        .status(Response.Status.CREATED)
-                        .entity(ApiDTO.success("Added product", productDTO))
-                        .build();
-            }
-
+            productServices.addProduct(addProductRequestDTO);
             return Response
-                    .status(Response.Status.NO_CONTENT)
-                    .entity(ApiDTO.failure("Product not added"))
+                    .status(Response.Status.CREATED)
+                    .entity(ApiResponseDTO.success("Added product", null))
                     .build();
         }
 
         return Response
                 .status(Response.Status.FORBIDDEN)
-                .entity(ApiDTO.failure("Doesn't have access to resources"))
+                .entity(ApiResponseDTO.failure("Doesn't have access to resources"))
                 .build();
     }
 
@@ -76,28 +69,17 @@ public class ProductControllers {
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response updateProduct(@Context SecurityContext securityContext, @PathParam("id") int id, Product product) {
+    public Response updateProduct(@Context SecurityContext securityContext, @Valid UpdateProductRequestDTO updateProductRequestDTO) {
         if (securityContext.isUserInRole("ADMIN")) {
-            product.setId(id);
-            ProductDTO productDTO = productServices.updateProduct(id, product);
-
-            if (productDTO != null) {
-                return Response
-                        .status(Response.Status.CREATED)
-                        .entity(ApiDTO.success("Updated product", productDTO))
-                        .build();
-            }
-
+            ProductResponseDTO productDTO = productServices.updateProduct(updateProductRequestDTO);
             return Response
-                    .status(Response.Status.NO_CONTENT)
-                    .entity(ApiDTO.failure("Product not updated"))
+                    .status(Response.Status.CREATED)
+                    .entity(ApiResponseDTO.success("Updated product", productDTO))
                     .build();
-
         }
-
         return Response
                 .status(Response.Status.FORBIDDEN)
-                .entity(ApiDTO.failure("Doesn't have access to resources"))
+                .entity(ApiResponseDTO.failure("Doesn't have access to resources"))
                 .build();
     }
 
@@ -105,26 +87,17 @@ public class ProductControllers {
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response deleteProduct(@Context SecurityContext securityContext, @PathParam("id") int id) {
+    public Response deleteProduct(@Context SecurityContext securityContext, @PathParam("id") String id) {
         if (securityContext.isUserInRole("ADMIN")) {
-            ProductDTO productDTO = productServices.deleteProduct(id);
-
-            if (productDTO != null) {
-                return Response
-                        .status(Response.Status.CREATED)
-                        .entity(ApiDTO.success("Product deleted successfully", id))
-                        .build();
-            }
-
+            productServices.deleteProduct(id);
             return Response
-                    .status(Response.Status.NO_CONTENT)
-                    .entity(ApiDTO.failure("Product not deleted"))
+                    .status(Response.Status.CREATED)
+                    .entity(ApiResponseDTO.success("Product deleted successfully", id))
                     .build();
         }
-
         return Response
                 .status(Response.Status.FORBIDDEN)
-                .entity(ApiDTO.failure("Doesn't have access to resources"))
+                .entity(ApiResponseDTO.failure("Doesn't have access to resources"))
                 .build();
     }
 }

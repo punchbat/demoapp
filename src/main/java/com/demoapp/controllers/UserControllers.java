@@ -1,36 +1,35 @@
 package com.demoapp.controllers;
 
-import com.demoapp.dto.UserDTO;
-import com.demoapp.models.User;
-import com.demoapp.services.UserServices;
-import com.demoapp.dto.ApiDTO;
-import com.demoapp.dto.UserAndTokenDTO;
+import com.demoapp.dto.request.SignInRequestDTO;
+import com.demoapp.dto.request.SignUpRequestDTO;
+import com.demoapp.dto.request.UpdateProfileRequestDTO;
+import com.demoapp.dto.response.UserResponseDTO;
+import com.demoapp.service.UserService;
+import com.demoapp.dto.response.ApiResponseDTO;
+import com.demoapp.dto.response.UserAndTokenResponseDTO;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/user")
 public class UserControllers {
-    private UserServices userServices = new UserServices();
+    private UserService userServices;
+
+    public UserControllers() {
+        this.userServices = new UserService();
+    }
 
     @POST
     @Path("/sign-up")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response signUp(User user) {
-        UserAndTokenDTO userAndTokenDTO = userServices.signUp(user);
-
-        if (userAndTokenDTO != null) {
-            return Response
-                    .status(Response.Status.CREATED)
-                    .entity(ApiDTO.success("User sign-up", userAndTokenDTO))
-                    .build();
-        }
-
+    public Response signUp(@Valid SignUpRequestDTO signUpRequestDTO) {
+        UserAndTokenResponseDTO userAndTokenDTO = userServices.signUp(signUpRequestDTO);
         return Response
-                .status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(ApiDTO.failure("User could not sign-up"))
+                .status(Response.Status.CREATED)
+                .entity(ApiResponseDTO.success("User sign-up", userAndTokenDTO))
                 .build();
     }
 
@@ -38,19 +37,11 @@ public class UserControllers {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response signIn(@FormParam("email") String email, @FormParam("password") String password) {
-        UserAndTokenDTO userAndTokenDTO = userServices.signIn(email, password);
-
-        if (userAndTokenDTO != null) {
-            return Response
-                    .status(Response.Status.CREATED)
-                    .entity(ApiDTO.success("User sign-in", userAndTokenDTO))
-                    .build();
-        }
-
+    public Response signIn(@Valid SignInRequestDTO signInRequestDTO) {
+        UserAndTokenResponseDTO userAndTokenDTO = userServices.signIn(signInRequestDTO);
         return Response
-                .status(Response.Status.UNAUTHORIZED)
-                .entity(ApiDTO.failure("Invalid credentials"))
+                .status(Response.Status.CREATED)
+                .entity(ApiResponseDTO.success("User sign-in", userAndTokenDTO))
                 .build();
     }
 
@@ -58,19 +49,11 @@ public class UserControllers {
     @Path("/profile-update/{id}")
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public Response updateProfile(@PathParam("id") int id, User user) {
-        UserDTO userDTO = userServices.updateProfile(id, user);
-
-        if (userDTO != null) {
-            return Response
-                    .status(Response.Status.OK)
-                    .entity(ApiDTO.success("User updated profile", userDTO))
-                    .build();
-        }
-
+    public Response updateProfile(@Valid UpdateProfileRequestDTO updateProfileRequestDTO) {
+        UserResponseDTO userDTO = userServices.updateProfile(updateProfileRequestDTO);
         return Response
-                .status(Response.Status.NOT_FOUND)
-                .entity(ApiDTO.failure("User not found"))
+                .status(Response.Status.OK)
+                .entity(ApiResponseDTO.success("User updated profile", userDTO))
                 .build();
     }
 }

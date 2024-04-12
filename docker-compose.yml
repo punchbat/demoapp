@@ -18,7 +18,7 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=demoapp
+      - POSTGRES_DB=demoapp-db
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
